@@ -2,11 +2,6 @@ pipeline {
   agent any
 
   stages {
-    stage('Clone') {
-      steps {
-        git 'https://github.com/ImaneDara/voting_app.git'
-      }
-    }
 
     stage('Stop Old Containers') {
       steps {
