@@ -2,12 +2,10 @@ FROM jenkins/jenkins:lts
 
 USER root
 
-RUN apt-get update && apt-get install -y \
-    docker.io \
-    docker-compose \
-    sudo && \
-    usermod -aG docker jenkins
+RUN apt-get update && \
+    apt-get install -y docker.io docker-compose && \
+    usermod -aG docker jenkins && \
+    chmod 666 /var/run/docker.sock
 
 USER jenkins
-
 

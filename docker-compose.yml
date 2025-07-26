@@ -1,44 +1,37 @@
-
 version: '3.8'
 
 services:
   vote:
-    build: ./vote
+    build: ./voting-app/vote
     ports:
-      - "5000:80"
-    environment:
-      - REDIS_HOST=${REDIS_HOST}
+      - "8097:80"
     depends_on:
-      redis:
-        condition: service_healthy
+      - redis
     networks:
       - frontend
-      - backend
+    restart: always
 
   result:
-    build: ./result
+    build: ./voting-app/result
     ports:
-      - "5001:80"
+      - "8096:80"
+    depends_on:
+      - db
     networks:
       - frontend
-      - backend
+    restart: always
 
   worker:
-    build: ./worker
+    build: ./voting-app/worker
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - redis
+      - db
     networks:
       - backend
+    restart: always
 
   redis:
     image: redis:alpine
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      retries: 5
     networks:
       - backend
 
@@ -47,34 +40,26 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      retries: 5
+      - db_data:/var/lib/postgresql/data
     networks:
       - backend
 
   jenkins:
     build: ./jenkins
-    container_name: jenkins-docker
-    user: root
     ports:
       - "8080:8080"
-      - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - backend
+      - frontend
+
+volumes:
+  db_data:
+  jenkins_home:
 
 networks:
   frontend:
   backend:
-
-volumes:
-  postgres_data:
-  jenkins_home:
 
