@@ -8,6 +8,7 @@ services:
     depends_on:
       - redis
     networks:
+      - backend
       - frontend
     restart: always
 
@@ -19,6 +20,7 @@ services:
       - db
     networks:
       - frontend
+      - backend
     restart: always
 
   worker:
